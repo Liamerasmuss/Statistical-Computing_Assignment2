@@ -122,7 +122,9 @@ library(parallel)
 R <- 50000
 set.seed(1234)
 
-t_rep <- system.time(replicate(R, replicate(3, max(rnorm(5)))))["elapsed"]
+t_rep <- system.time(replicate
+                     (R, replicate
+                       (3, max(rnorm(5)))))["elapsed"]
 
 set.seed(1234)
 t_for <- system.time(replicate(R,

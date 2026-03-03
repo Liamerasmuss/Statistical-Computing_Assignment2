@@ -1,0 +1,24 @@
+project:
+  type: book
+
+book:
+  title: "SC Assignment 2"
+  author: "Liam Erasmus"
+  date: "3/3/2026"
+  chapters:
+    - index.qmd
+    - Parallel_Computing_Prac.qmd
+
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
