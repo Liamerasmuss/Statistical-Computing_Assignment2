@@ -11,12 +11,12 @@ editor: visual
 ```{r}
 library(foreach)
 library(kableExtra)
-
+# Repeat 100 times: generate a sample from Exp(1) and compute mean and variance
 one <- as.data.frame( foreach(i = 1:100, .combine = rbind) %do%{
   samp <- rexp(100, 1)
   c(
-  x_bar <- mean(samp),
-  vari <- var(samp))
+  x_bar <- mean(samp), # mean 
+  vari <- var(samp)) #variance
   #results = rbind(x_bar, vari)
 }
 )
@@ -43,7 +43,7 @@ t_serial
 
 # One Bootstrap per task (in parallel)
 
-cl <- makeCluster(detectCores() - 1) # do not want my computer to crashhhhhh
+cl <- makeCluster(detectCores() - 1) # do not want my computer to crash
 registerDoParallel(cl)
 
 t_par_single <- system.time({
@@ -78,13 +78,13 @@ t_par_chunk # MUUUUCH FASTER
 ### Question 3
 
 ```{r}
-n <- 50
-mu_true <- 1
-B <- 2000
-M <- 10000
+n <- 50 # sample size
+mu_true <- 1 # true mean of Exp(1)
+B <- 2000 # number of bootstrap samples
+M <- 10000 # number of Monte Carlo simulations
 
-cl3 <- makeCluster(detectCores() - 1)
-registerDoParallel(cl)
+cl3 <- makeCluster(detectCores() - 1) # again, do not crash
+registerDoParallel(cl) # register cluster for parallel foreach
 
 coverage_vec <- foreach(m = 1:M, .combine = c) %dopar% {
 
@@ -92,14 +92,14 @@ coverage_vec <- foreach(m = 1:M, .combine = c) %dopar% {
 
   boot_means <- replicate(B, mean(sample(x, n, replace = TRUE)))
 
-  ci <- quantile(boot_means, probs = c(0.025, 0.975), names = FALSE)
+  ci <- quantile(boot_means, probs = c(0.025, 0.975), names = FALSE) # percentile bootstrap confidence interval
 
-  (ci[1] <= mu_true) && (mu_true <= ci[2])
+  (ci[1] <= mu_true) && (mu_true <= ci[2]) # check whether the true mean lies inside the CI
 }
 
 stopCluster(cl3)
 
-mean(coverage_vec)
+mean(coverage_vec) # estimated coverage probability
 ```
 
 ### Question 4
@@ -110,7 +110,7 @@ library(iterators)
 set.seed(1234)
 
 foreach(x = irnorm(3, count = 5), .combine = c) %do% {
-  max(x)
+  max(x) # max of each vector
 }
 ```
 
@@ -122,15 +122,22 @@ library(parallel)
 R <- 50000
 set.seed(1234)
 
+# normal way
+# Generate 3 samples of size 5 from N(0,1),
+# take the maximum of each sample
 t_rep <- system.time(replicate
                      (R, replicate
                        (3, max(rnorm(5)))))["elapsed"]
 
+# with for each
+# get the maximum of 3 samples
 set.seed(1234)
 t_for <- system.time(replicate(R,
   foreach(x = irnorm(3, count = 5), .combine = c) %do% max(x)
 ))["elapsed"]
 
+# with parLapply
+# distribute the 3 computations across cores
 cl <- makeCluster(detectCores() - 1)
 clusterSetRNGStream(cl, 1234)
 t_par <- system.time(replicate(R,
@@ -138,5 +145,5 @@ t_par <- system.time(replicate(R,
 ))["elapsed"]
 stopCluster(cl)
 
-c(replicate = t_rep, foreach = t_for, parLapply = t_par)
+c(replicate = t_rep, foreach = t_for, parLapply = t_par) # answers
 ```
